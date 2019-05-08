@@ -30,20 +30,20 @@ public class CompilationEngine {
 	private void HandleTokens() {
 		int tokensSize = this.tokens.size();
 		//main loop over tokens 
-		while (this.index < tokensSize) {
-			String xml = getXmlTag(this.tokens.get(index));
+		while ((this.index < tokensSize) && !getXmlTag(getCurrent()).equals("keyword")) {
+			/*String xml = getXmlTag(this.tokens.get(index));
 			switch (xml) {
 				case "keyword": {
 					HandleKeyword();
 					break;
 				}
 				default: {
-					System.out.println(xml+ " not yet implemented........");
 					break;
 				}
-			}
+			}*/
 			this.index++;
 		}
+		HandleKeyword();
 	}
 
 	private void HandleKeyword() {
@@ -388,11 +388,15 @@ public class CompilationEngine {
 		this.indent++;
 		//term
 		CompileTerm();
-		while (!getXmlTag(getCurrent()).equals("symbol")) {
+		String cur = getInnerTag(getCurrent());
+		while (cur.equals("+") || cur.equals("-") || cur.equals("*") 
+				|| cur.equals("/") || cur.equals("&amp;") || cur.equals("|") 
+				|| cur.equals("&lt;") || cur.equals("&gt;") || cur.equals("=")) {
 			//Op
 			WriteCurrent();
 			this.index++;
 			CompileTerm();
+			cur = getInnerTag(getCurrent());
 		}
 		this.indent--;
 		WriteLine("</expression>");
@@ -401,7 +405,12 @@ public class CompilationEngine {
 	private void CompileTerm() {
 		WriteLine("<term>");
 		this.indent++;
-		String xmlTag = getXmlTag(getCurrent());
+		String xmlTag;
+		if (this.index < this.tokens.size()) { 
+			xmlTag = getXmlTag(getCurrent());
+		} else {
+			xmlTag = "END";
+		}
 		switch (xmlTag) {
 			//sting constants
 			case "stringConstant":
@@ -448,6 +457,9 @@ public class CompilationEngine {
 						this.index++;
 					}
 				}
+				break;
+			case "END":
+			default:
 				break;
 		}
 		this.indent--;
