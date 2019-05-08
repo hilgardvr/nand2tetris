@@ -14,9 +14,10 @@ public class CompilationEngine {
 
 	public void ParseTokens(List<String> tokenizedFile, String filePath) {
 		this.tokens = tokenizedFile;
-		//String fileName = filePath.substring(0, filePath.lastIndexOf("."));
-		int last = filePath.lastIndexOf("/") == -1 ? 0 : filePath.lastIndexOf("/") + 1;
-		String fileName = filePath.substring(last, filePath.lastIndexOf("."));
+		String fileName = filePath.substring(0, filePath.lastIndexOf("."));
+		//create file in root directory
+		//int last = filePath.lastIndexOf("/") == -1 ? 0 : filePath.lastIndexOf("/") + 1;
+		//String fileName = filePath.substring(last, filePath.lastIndexOf("."));
 		try {
 			writer = new BufferedWriter(new FileWriter(fileName + ".xml"));
 		} catch (Exception e) {
@@ -31,16 +32,6 @@ public class CompilationEngine {
 		int tokensSize = this.tokens.size();
 		//main loop over tokens 
 		while ((this.index < tokensSize) && !getXmlTag(getCurrent()).equals("keyword")) {
-			/*String xml = getXmlTag(this.tokens.get(index));
-			switch (xml) {
-				case "keyword": {
-					HandleKeyword();
-					break;
-				}
-				default: {
-					break;
-				}
-			}*/
 			this.index++;
 		}
 		HandleKeyword();
