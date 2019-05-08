@@ -1,0 +1,119 @@
+class FpsGame {
+	//x & y position of cursor
+	field int x, y;
+	field Gun gun;
+	field Aim aim;
+
+	constructor FpsGame new() {
+        let x = 255;
+		let y = 128;
+        do Output.printString("To move cursor use arrows, press spacebar to shoot and q to quit");
+        do Output.println();
+		let gun = Gun.new(calcLocation((511 / 2), (255 - 16)));
+		let aim = Aim.new(calcLocation(x,y));
+		do runGame();
+		return this;
+	}
+
+	method int calcLocation(int x, int y) {
+		var int location;
+
+		let location = (x / 16) + (y * 32);
+		return location;
+	}
+
+	method void runGame() {
+		var char key;
+
+		while (true) {
+			while (key = 0) {
+				let key = Keyboard.keyPressed();
+			}
+
+			if (key = 81) {
+				do Output.printString("Exiting");
+				return;
+			}
+			if (key = 113) {
+				do Output.printString("Exiting");
+				return;
+			}
+            if (key = 130) {
+                do moveLeft();
+            }
+            if (key = 131) {
+                do moveUp();
+            }
+            if (key = 132) {
+                do moveRight();
+            }
+            if (key = 133) {
+                do moveDown();
+            }
+            if (key = 32) {
+                do shoot();
+            } 
+            let key = 0;
+		}
+		return;
+	}				
+
+    method void moveLeft() {
+        if (x > 0) {
+            let x = x - 1;
+            do Screen.clearScreen();
+		    do gun.drawGun(calcLocation(255, 239));
+		    do aim.drawAim(calcLocation(x,y));
+        }
+        return;
+    }
+            
+    method void moveRight() {
+        if (x < 511) {
+            let x = x + 1;
+            do Screen.clearScreen();
+		    do gun.drawGun(calcLocation(255, 239));
+		    do aim.drawAim(calcLocation(x,y));
+        }
+        return;
+    }
+
+    method void moveUp() {
+        if (y > 0) {
+            let y = y - 1;
+            do Screen.clearScreen();
+		    do gun.drawGun(calcLocation(255, 239));
+		    do aim.drawAim(calcLocation(x,y));
+        }
+        return;
+    }
+
+    method void moveDown() {
+        if (y < 255) {
+            let y = y + 1;
+            do Screen.clearScreen();
+		    do gun.drawGun(calcLocation(255, 239));
+		    do aim.drawAim(calcLocation(x,y));
+        }
+        return;
+    }
+
+    method void shoot() {
+        do Screen.clearScreen();
+        do gun.drawFiringGun(calcLocation(255, 239));
+        do aim.drawFiring(calcLocation(x,y));
+        do Sys.wait(500);
+        do Screen.clearScreen();
+        do gun.drawGun(calcLocation(255, 239));
+        do aim.drawAim(calcLocation(x,y));
+        return;
+    }
+
+   method void dispose() {
+      do gun.dispose();
+	  do aim.dispose();
+      do Memory.deAlloc(this);
+      return;
+   }
+
+}

@@ -1,0 +1,133 @@
+//Pushing constant 3030
+@3030
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+//Popping to pointer 0
+@SP
+M=M-1
+A=M
+D=M
+@THIS
+M=D
+//Pushing constant 3040
+@3040
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+//Popping to pointer 1
+@SP
+M=M-1
+A=M
+D=M
+@THAT
+M=D
+//Pushing constant 32
+@32
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+//Popping to THIS 2
+@SP
+M=M-1
+A=M
+D=M
+@THIS
+A=M
+A=A+1
+A=A+1
+M=D
+//Pushing constant 46
+@46
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+//Popping to THAT 6
+@SP
+M=M-1
+A=M
+D=M
+@THAT
+A=M
+A=A+1
+A=A+1
+A=A+1
+A=A+1
+A=A+1
+A=A+1
+M=D
+//Pushing from pointer 0
+@THIS
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+//Pushing from pointer 1
+@THAT
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+//Adding
+@SP
+M=M-1
+A=M
+D=M
+A=A-1
+M=D+M
+//Pushing from THIS 2
+@THIS
+A=M
+A=A+1
+A=A+1
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+//Subbing
+@SP
+M=M-1
+A=M
+D=M
+A=A-1
+M=M-D
+//Pushing from THAT 6
+@THAT
+A=M
+A=A+1
+A=A+1
+A=A+1
+A=A+1
+A=A+1
+A=A+1
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+//Adding
+@SP
+M=M-1
+A=M
+D=M
+A=A-1
+M=D+M

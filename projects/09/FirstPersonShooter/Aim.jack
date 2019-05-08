@@ -1,0 +1,55 @@
+class Aim {
+	field int memAddress;
+
+	constructor Aim new(int location) {
+		do drawAim(location);
+		return this;
+	}		
+
+	method void drawAim(int location) {
+		let memAddress = 16384+location;
+		do Memory.poke(memAddress+0, -32767);
+		do Memory.poke(memAddress+32, 16386);
+		do Memory.poke(memAddress+64, 8196);
+		do Memory.poke(memAddress+96, 4488);
+		do Memory.poke(memAddress+128, 2640);
+		do Memory.poke(memAddress+160, 1056);
+		do Memory.poke(memAddress+192, 2640);
+		do Memory.poke(memAddress+224, 4488);
+		do Memory.poke(memAddress+256, 4488);
+		do Memory.poke(memAddress+288, 2640);
+		do Memory.poke(memAddress+320, 1056);
+		do Memory.poke(memAddress+352, 2640);
+		do Memory.poke(memAddress+384, 4488);
+		do Memory.poke(memAddress+416, 8196);
+		do Memory.poke(memAddress+448, 16386);
+		do Memory.poke(memAddress+480, -32767);
+		return;
+	}
+
+    method void drawFiring(int location) {
+        let memAddress = 16384+location;
+        do Memory.poke(memAddress+0, 0);
+        do Memory.poke(memAddress+32, 0);
+        do Memory.poke(memAddress+64, 0);
+        do Memory.poke(memAddress+96, 0);
+        do Memory.poke(memAddress+128, 0);
+        do Memory.poke(memAddress+160, 0);
+        do Memory.poke(memAddress+192, 384);
+        do Memory.poke(memAddress+224, 960);
+        do Memory.poke(memAddress+256, 960);
+        do Memory.poke(memAddress+288, 384);
+        do Memory.poke(memAddress+320, 0);
+        do Memory.poke(memAddress+352, 0);
+        do Memory.poke(memAddress+384, 0);
+        do Memory.poke(memAddress+416, 0);
+        do Memory.poke(memAddress+448, 0);
+        do Memory.poke(memAddress+480, 0);
+        return;
+    }
+
+	method void dispose() {
+		do Memory.deAlloc(this);
+		return;
+	}
+}

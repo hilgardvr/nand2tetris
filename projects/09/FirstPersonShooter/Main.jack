@@ -1,0 +1,9 @@
+class Main {
+	function void main() {
+		var FpsGame game;
+		let game = FpsGame.new();
+		do Sys.wait(1000);
+		do game.dispose();
+		return;
+	}		
+}
