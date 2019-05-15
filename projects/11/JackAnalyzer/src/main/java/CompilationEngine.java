@@ -8,6 +8,8 @@ import java.io.IOException;
 public class CompilationEngine {
 	private BufferedWriter writer;
 	private List<String> tokens;
+	private List<SymbolTableItem> classSymbolTable;
+	private List<SymbolTableItem> methodSymbolTable;
 	private int index;
 	private int indent;
 
@@ -48,14 +50,13 @@ public class CompilationEngine {
 		//System.out.println("Handling: **" + getInnerTag(this.tokens.get(index)) + "**");
 		switch (tag) {
 			case "class":
+				classSymbolTable = new ArrayList<SymbolTableItem>();
 				CompileClass();
 				break;
 			default:
 				System.out.println("Class not found");
 				break;
 		}
-			
-				
 	}	
 
 	private void CompileClass() {
@@ -86,6 +87,10 @@ public class CompilationEngine {
 		this.index++;
 		this.indent--;
 		WriteLine("</class>");
+		System.out.println("Class symbol table size: " + Integer.toString(this.classSymbolTable.size()));
+		for (int i = 0; i < this.classSymbolTable.size(); i++) {
+			System.out.println(this.classSymbolTable.get(i).toString());
+		}
 	}
 
 	private void CompileSubroutineDec() {
@@ -460,21 +465,30 @@ public class CompilationEngine {
 	}
 
 	private void CompileClassVarDec() {
+		String category;	 
+		String type;
+		String name;
 		WriteLine("<classVarDec>");
 		this.indent++;
 		//static | field
+		category = getInnerTag(getCurrent()); 
 		WriteCurrent();
 		this.index++;
 		// type
+		type = getInnerTag(getCurrent());
 		WriteCurrent();
 		this.index++;
 		// varName
+		name = getInnerTag(getCurrent());
 		WriteCurrent();
 		this.index++;
+		classSymbolTable.add(new SymbolTableItem(name, category, type));	
 		// if more than one variable declared in line
 		while (getInnerTag(getCurrent()).equals(",")) {
+			//,
 			WriteCurrent();
 			this.index++;
+			//varName
 			WriteCurrent();
 			this.index++;
 		}
