@@ -50,6 +50,6 @@ public class SymbolTableItem {
 	}
 	
 	public String toString() {
-		return (this.category + ": " + this.name + " - index: " + Integer.toString(this.index));
+		return (this.category + "\t" + this.type + "\t" + this.name + "\t" + Integer.toString(this.index));
 	}
 }

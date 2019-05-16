@@ -131,6 +131,7 @@ public class CompilationEngine {
 	}
 
 	private void CompileSubroutineBody() {
+		this.methodSymbolTable = new ArrayList<SymbolTableItem>();
 		WriteLine("<subroutineBody>");
 		this.indent++;
 		//{
@@ -150,11 +151,30 @@ public class CompilationEngine {
 	}
 
 	private void CompileVarDec() {
+		String category = null;	 
+		String type = null;
+		String name = null;
 		WriteLine("<varDec>");
 		this.indent++;
+		//var
+		category = getInnerTag(getCurrent());	
+		WriteCurrent();
+		this.index++;
+		//type
+		type = getInnerTag(getCurrent());
+		WriteCurrent();
+		this.index++;
 		while (!getInnerTag(getCurrent()).equals(";")) {
+			//,
+			if (getInnerTag(getCurrent()).equals(",")) {
+				WriteCurrent();
+				this.index++;
+			}
+			//name
+			name = getInnerTag(getCurrent());
 			WriteCurrent();
-			this.index++;
+			this.index++;	
+			methodSymbolTable.add(new SymbolTableItem(name, category, type));
 		}
 		//;
 		WriteCurrent();
@@ -309,8 +329,6 @@ public class CompilationEngine {
 
 	//todo
 	private void CompileSubroutineCall() {
-		//WriteLine("<subroutineCall>");
-		//this.indent++;
 		//identifier
 		WriteCurrent();
 		this.index++;
@@ -338,8 +356,6 @@ public class CompilationEngine {
 		//)
 		WriteCurrent();
 		this.index++;
-		//this.indent--;
-		//WriteLine("</subroutineCall>");
 	}
 
 	private void CompileExpressionList() {
