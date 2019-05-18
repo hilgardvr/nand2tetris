@@ -12,12 +12,16 @@ public class CompilationEngine {
 	private List<SymbolTableItem> methodSymbolTable;
 	private int index;
 	private int indent;
+	private int fieldIndex;
+	private int staticIndex;
+	private int argumentIndex;
+	private int localIndex;
 
 	public void ParseTokens(List<String> tokenizedFile, String filePath) {
 		this.tokens = tokenizedFile;
 		this.index = 0;
 		this.indent = 0;
-
+		
 		String fileName = filePath.substring(0, filePath.lastIndexOf("."));
 		//create file in root directory
 		//int last = filePath.lastIndexOf("/") == -1 ? 0 : filePath.lastIndexOf("/") + 1;
@@ -47,10 +51,8 @@ public class CompilationEngine {
 		if (!xml.equals("keyword")) {
 			System.out.println("Expected keyword tab but got : " + getCurrent());
 		}
-		//System.out.println("Handling: **" + getInnerTag(this.tokens.get(index)) + "**");
 		switch (tag) {
 			case "class":
-				classSymbolTable = new ArrayList<SymbolTableItem>();
 				CompileClass();
 				break;
 			default:
@@ -60,6 +62,9 @@ public class CompilationEngine {
 	}	
 
 	private void CompileClass() {
+		this.fieldIndex = 0;
+		this.staticIndex = 0;
+		this.classSymbolTable = new ArrayList<SymbolTableItem>();
 		WriteLine("<class>");
 		this.indent++;
 		WriteLine(this.tokens.get(this.index));
@@ -87,13 +92,16 @@ public class CompilationEngine {
 		this.index++;
 		this.indent--;
 		WriteLine("</class>");
-		System.out.println("Class symbol table size: " + Integer.toString(this.classSymbolTable.size()));
 		for (int i = 0; i < this.classSymbolTable.size(); i++) {
 			System.out.println(this.classSymbolTable.get(i).toString());
 		}
+		System.out.println("End of class -----------\n");
 	}
 
 	private void CompileSubroutineDec() {
+		this.methodSymbolTable = new ArrayList<SymbolTableItem>();
+		this.argumentIndex = 0;
+		this.localIndex = 0;
 		WriteLine("<subroutineDec>");
 		this.indent++;
 		//const | method | function
@@ -116,6 +124,10 @@ public class CompilationEngine {
 		CompileSubroutineBody();
 		this.indent--;
 		WriteLine("</subroutineDec>");
+		for (int i = 0; i < this.methodSymbolTable.size(); i++) {
+			System.out.println(this.methodSymbolTable.get(i).toString());
+		}
+		System.out.println("End of method -----------\n");
 	}
 
 	private void CompileParameterList() {
@@ -123,15 +135,31 @@ public class CompilationEngine {
 		this.indent++;
 		// if any parameters
 		while (!getInnerTag(getCurrent()).equals(")")) {
+			String name;
+			String type;
+			int symbolIndex = this.argumentIndex;
+			this.argumentIndex++;
+			//type		
 			WriteCurrent();
+			type = getInnerTag(getCurrent());	
 			this.index++;
+			//name
+			WriteCurrent();
+			name = getInnerTag(getCurrent());
+			this.index++;
+			//add parameter
+			methodSymbolTable.add(new SymbolTableItem(name, "argument", type, symbolIndex));
+			//if ,
+			if (getInnerTag(getCurrent()).equals(",")) {
+				WriteCurrent();
+				this.index++;
+			}
 		}
 		this.indent--;
 		WriteLine("</parameterList>");
 	}
 
 	private void CompileSubroutineBody() {
-		this.methodSymbolTable = new ArrayList<SymbolTableItem>();
 		WriteLine("<subroutineBody>");
 		this.indent++;
 		//{
@@ -151,19 +179,24 @@ public class CompilationEngine {
 	}
 
 	private void CompileVarDec() {
-		String category = null;	 
 		String type = null;
 		String name = null;
 		WriteLine("<varDec>");
 		this.indent++;
 		//var
-		category = getInnerTag(getCurrent());	
 		WriteCurrent();
 		this.index++;
 		//type
 		type = getInnerTag(getCurrent());
 		WriteCurrent();
 		this.index++;
+		//name
+		name = getInnerTag(getCurrent());
+		WriteCurrent();
+		this.index++;
+		//add to symboltablde
+		methodSymbolTable.add(new SymbolTableItem(name, "local", type, this.localIndex));
+		this.localIndex++;
 		while (!getInnerTag(getCurrent()).equals(";")) {
 			//,
 			if (getInnerTag(getCurrent()).equals(",")) {
@@ -174,7 +207,9 @@ public class CompilationEngine {
 			name = getInnerTag(getCurrent());
 			WriteCurrent();
 			this.index++;	
-			methodSymbolTable.add(new SymbolTableItem(name, category, type));
+			//add to symboltable
+			methodSymbolTable.add(new SymbolTableItem(name, "local", type, this.localIndex));
+			this.localIndex++;
 		}
 		//;
 		WriteCurrent();
@@ -484,10 +519,20 @@ public class CompilationEngine {
 		String category;	 
 		String type;
 		String name;
+		int symbolIndex = -1;
 		WriteLine("<classVarDec>");
 		this.indent++;
 		//static | field
 		category = getInnerTag(getCurrent()); 
+		if (category.equals("static")) {
+			symbolIndex = this.staticIndex;
+			this.staticIndex++;
+		} else if (category.equals("field")) {
+			symbolIndex = this.fieldIndex;
+			this.fieldIndex++;
+		} else {
+			System.out.println("-------> Unknown variable catogory: " + category + " <--------");
+		}
 		WriteCurrent();
 		this.index++;
 		// type
@@ -498,7 +543,7 @@ public class CompilationEngine {
 		name = getInnerTag(getCurrent());
 		WriteCurrent();
 		this.index++;
-		classSymbolTable.add(new SymbolTableItem(name, category, type));	
+		classSymbolTable.add(new SymbolTableItem(name, category, type, symbolIndex));	
 		// if more than one variable declared in line
 		while (getInnerTag(getCurrent()).equals(",")) {
 			//,
@@ -506,7 +551,20 @@ public class CompilationEngine {
 			this.index++;
 			//varName
 			WriteCurrent();
+			name = getInnerTag(getCurrent());
 			this.index++;
+			//increment symbol index
+			if (category.equals("static")) {
+				symbolIndex = this.staticIndex;
+				this.staticIndex++;
+			} else if (category.equals("field")) {
+				symbolIndex = this.fieldIndex;
+				this.fieldIndex++;
+			} else {
+				System.out.println("-------> Unknown variable catogory: " + category + " <--------");
+			}
+			//add symbol
+			classSymbolTable.add(new SymbolTableItem(name, category, type, symbolIndex));	
 		}
 		WriteCurrent();
 		this.index++;

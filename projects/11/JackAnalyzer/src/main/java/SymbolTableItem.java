@@ -3,38 +3,16 @@ public class SymbolTableItem {
 	private String category;
 	private String type;
 	private int index;
-	static int fieldIndex;
+	/*static int fieldIndex;
 	static int staticIndex;
 	static int argumentIndex;
-	static int localIndex;
+	static int localIndex;*/
 
-	SymbolTableItem(String n, String c, String t) {
+	SymbolTableItem(String n, String c, String t, int index) {
 		this.name = n;
 		this.category = c;
 		this.type = t;
-		switch (c) {
-			case "field":
-				this.index = SymbolTableItem.fieldIndex;
-				SymbolTableItem.fieldIndex++;
-				break;
-			case "static":
-				this.index = SymbolTableItem.staticIndex;
-				SymbolTableItem.staticIndex++;
-				break;
-			case "argument":
-				this.index = SymbolTableItem.argumentIndex;
-				SymbolTableItem.argumentIndex++;
-				break;
-			case "local":
-				this.index = SymbolTableItem.localIndex;
-				SymbolTableItem.localIndex++;
-				break;
-			default:
-				System.out.println("Could not find " + c);
-				break;
-		}
-		System.out.println("adding new item " + toString());
-		return;
+		this.index = index;
 	}
 
 	public String getName() {
@@ -47,6 +25,10 @@ public class SymbolTableItem {
 
 	public String getType() {
 		return this.type;
+	}
+
+	public int getIndex() {
+		return this.index;
 	}
 	
 	public String toString() {
