@@ -6,7 +6,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class CompilationEngine {
+	//writes xml code
 	private BufferedWriter writer;
+	private VmWriter vmWriter;
 	private List<String> tokens;
 	private List<SymbolTableItem> classSymbolTable;
 	private List<SymbolTableItem> methodSymbolTable;
@@ -22,10 +24,8 @@ public class CompilationEngine {
 		this.index = 0;
 		this.indent = 0;
 		
+		vmWriter = new VmWriter(filePath);
 		String fileName = filePath.substring(0, filePath.lastIndexOf("."));
-		//create file in root directory
-		//int last = filePath.lastIndexOf("/") == -1 ? 0 : filePath.lastIndexOf("/") + 1;
-		//String fileName = filePath.substring(last, filePath.lastIndexOf("."));
 		try {
 			writer = new BufferedWriter(new FileWriter(fileName + ".xml"));
 		} catch (Exception e) {
@@ -33,6 +33,7 @@ public class CompilationEngine {
 		}
 		HandleTokens();	
 		CloseWriter();
+		vmWriter.CloseWriter();
 	}
 
 	private void HandleTokens() {
@@ -70,6 +71,7 @@ public class CompilationEngine {
 		WriteLine(this.tokens.get(this.index));
 		this.index++;
 		//should find a className
+		System.out.println("Class identifier: " + getInnerTag(getCurrent()));
 		WriteCurrent();
 		this.index++;
 
@@ -111,6 +113,7 @@ public class CompilationEngine {
 		WriteCurrent();
 		this.index++;
 		//subroutine name
+		System.out.println("Subroutine identifier: " + getInnerTag(getCurrent()));
 		WriteCurrent();
 		this.index++;
 		//(
