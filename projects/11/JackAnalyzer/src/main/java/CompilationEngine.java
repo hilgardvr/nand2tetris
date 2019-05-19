@@ -9,6 +9,8 @@ public class CompilationEngine {
 	//writes xml code
 	private BufferedWriter writer;
 	private VmWriter vmWriter;
+	private String className;
+	private String methodName;
 	private List<String> tokens;
 	private List<SymbolTableItem> classSymbolTable;
 	private List<SymbolTableItem> methodSymbolTable;
@@ -72,6 +74,7 @@ public class CompilationEngine {
 		this.index++;
 		//should find a className
 		System.out.println("Class identifier: " + getInnerTag(getCurrent()));
+		this.className = getInnerTag(getCurrent());
 		WriteCurrent();
 		this.index++;
 
@@ -114,6 +117,7 @@ public class CompilationEngine {
 		this.index++;
 		//subroutine name
 		System.out.println("Subroutine identifier: " + getInnerTag(getCurrent()));
+		this.methodName = getInnerTag(getCurrent());
 		WriteCurrent();
 		this.index++;
 		//(
@@ -126,6 +130,7 @@ public class CompilationEngine {
 		this.index++;
 		CompileSubroutineBody();
 		this.indent--;
+		vmWriter.WriteReturn();
 		WriteLine("</subroutineDec>");
 		for (int i = 0; i < this.methodSymbolTable.size(); i++) {
 			System.out.println(this.methodSymbolTable.get(i).toString());
@@ -172,6 +177,7 @@ public class CompilationEngine {
 		while (getInnerTag(getCurrent()).equals("var")) {
 			CompileVarDec();
 		}
+		vmWriter.WriteFunction(this.className + "." + this.methodName, this.methodSymbolTable.size());
 		//statements
 		CompileStatements();
 		//}
@@ -367,8 +373,10 @@ public class CompilationEngine {
 
 	//todo
 	private void CompileSubroutineCall() {
+		int nArgs = 0;
 		//identifier
 		WriteCurrent();
+		String subName = getInnerTag(getCurrent());
 		this.index++;
 		//if subroutine()
 		if (getInnerTag(getCurrent()).equals("(")) {
@@ -376,33 +384,39 @@ public class CompilationEngine {
 			WriteCurrent();
 			this.index++;
 			//ExressionList
-			CompileExpressionList();		
+			nArgs = CompileExpressionList();		
 		// identifier.subroutine()
 		} else {
 			//.
+			subName += getInnerTag(getCurrent());
 			WriteCurrent();
 			this.index++;
 			//subroutine identifier
 			WriteCurrent();
+			subName += getInnerTag(getCurrent());
 			this.index++;
 			//(
 			WriteCurrent();
 			this.index++;
 			//expressionlist
-			CompileExpressionList();
+			nArgs = CompileExpressionList();
 		}	
+		//method name
+		vmWriter.WriteCall(subName, Integer.toString(nArgs));	
 		//)
 		WriteCurrent();
 		this.index++;
 	}
 
-	private void CompileExpressionList() {
+	private int CompileExpressionList() {
+		int counter = 0;
 		WriteLine("<expressionList>");
 		this.indent++;
 		//check if arguments
 		if (!getInnerTag(getCurrent()).equals(")")) {
 			//expression
 			CompileExpression();
+			counter++;
 		}
 		//while more expressions
 		while (!getInnerTag(getCurrent()).equals(")")) {
@@ -411,9 +425,11 @@ public class CompilationEngine {
 			this.index++;
 			//expression
 			CompileExpression();	
+			counter++;
 		}
 		this.indent--;
 		WriteLine("</expressionList>");
+		return counter;
 	}
 
 	
@@ -435,7 +451,7 @@ public class CompilationEngine {
 		WriteLine("</returnStatement>");
 	}
 
-	private void CompileExpression() {
+	private void CompileExpression() {	
 		WriteLine("<expression>");
 		this.indent++;
 		//term
@@ -448,6 +464,38 @@ public class CompilationEngine {
 			WriteCurrent();
 			this.index++;
 			CompileTerm();
+			switch (cur) {
+				case "+":
+					vmWriter.WriteArithmetic("add");
+					break;
+				case "-":
+					vmWriter.WriteArithmetic("sub");
+					break;
+				case "*":
+					vmWriter.WriteCall("Math.multiply", "2");
+					break;
+				case "/":
+					vmWriter.WriteCall("Math.divide", "2");
+					break;
+				case "&amp;":
+					vmWriter.WriteArithmetic("and");
+					break;
+				case "|":
+					vmWriter.WriteArithmetic("or");
+					break;
+				case "&lt;":
+					vmWriter.WriteArithmetic("lt");
+					break;
+				case "&gt;":
+					vmWriter.WriteArithmetic("gt");
+					break;
+				case "=":
+					vmWriter.WriteArithmetic("eq");
+					break;
+				default:
+					vmWriter.WriteLine(cur);
+					break;
+			}
 			cur = getInnerTag(getCurrent());
 		}
 		this.indent--;
@@ -467,8 +515,12 @@ public class CompilationEngine {
 			//sting constants
 			case "stringConstant":
 			case "integerConstant":
+				vmWriter.WritePush("constant", getInnerTag(getCurrent()));
+				this.index++;
+				break;
 			//true, false, null, this
 			case "keyword":
+				//System.out.println(getInnerTag(getCurrent());
 				WriteCurrent();
 				this.index++;
 				break;
