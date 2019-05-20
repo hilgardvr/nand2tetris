@@ -27,8 +27,8 @@ public class SymbolTableItem {
 		return this.type;
 	}
 
-	public int getIndex() {
-		return this.index;
+	public String getIndex() {
+		return Integer.toString(this.index);
 	}
 	
 	public String toString() {

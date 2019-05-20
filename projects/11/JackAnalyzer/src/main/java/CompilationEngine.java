@@ -265,6 +265,7 @@ public class CompilationEngine {
 		WriteCurrent();
 		this.index++;
 		//varName
+		String varName = getInnerTag(getCurrent());
 		WriteCurrent();
 		this.index++;
 		//if array variable
@@ -283,12 +284,16 @@ public class CompilationEngine {
 		this.index++;
 		//expression
 		CompileExpression();
+		//pop result into varname
+		vmWriter.WritePop(getVarSegment(varName), getVarIndex(varName));
 		//;
 		WriteCurrent();
 		this.index++;
 		this.indent--;
 		WriteLine("</letStatement>");
 	}
+
+	
 
 	private void CompileIf() {
 		WriteLine("<ifStatement>");
@@ -626,7 +631,35 @@ public class CompilationEngine {
 		this.indent--;
 		WriteLine("</classVarDec>");
 	}	
+	
+	private String getVarSegment(String varName) {
+		for (SymbolTableItem t : methodSymbolTable) {
+			if (t.getName().equals(varName)) {
+				return (t.getCategory());
+			}
+		}
+		for (SymbolTableItem t : classSymbolTable) {
+			if (t.getName().equals(varName)) {
+				return (t.getCategory());
+			}
+		} 
+		return "TODO";
+	}
 
+	private String getVarIndex(String varName) {
+		for (SymbolTableItem t : methodSymbolTable) {
+			if (t.getName().equals(varName)) {
+				return (t.getIndex());
+			}
+		}
+		for (SymbolTableItem t : classSymbolTable) {
+			if (t.getName().equals(varName)) {
+				return (t.getIndex());
+			}
+		}
+		return "TODO";
+	}
+	
 	private String getXmlTag(String token) {
 		return token.substring(token.indexOf("<") + 1, token.indexOf(">"));
 	}
