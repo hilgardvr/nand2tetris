@@ -29,10 +29,11 @@ public class VmWriter {
 	}
 
 	public void WriteLabel(String label) {
-		WriteLine(label + ":");
+		WriteLine("label " + label);
 	}
 
 	public void WriteGoto(String label) {
+		WriteLine("goto " + label);
 	}
 
 	public void WriteIf(String label) {

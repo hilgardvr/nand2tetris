@@ -20,11 +20,13 @@ public class CompilationEngine {
 	private int staticIndex;
 	private int argumentIndex;
 	private int localIndex;
+	private int ifIndex;
 
 	public void ParseTokens(List<String> tokenizedFile, String filePath) {
 		this.tokens = tokenizedFile;
 		this.index = 0;
 		this.indent = 0;
+		this.ifIndex = 0;
 		
 		vmWriter = new VmWriter(filePath);
 		String fileName = filePath.substring(0, filePath.lastIndexOf("."));
@@ -141,11 +143,12 @@ public class CompilationEngine {
 	private void CompileParameterList() {
 		WriteLine("<parameterList>");
 		this.indent++;
+		//add implicit this argument
+		methodSymbolTable.add(new SymbolTableItem("this", "argument", className, this.argumentIndex));
 		// if any parameters
 		while (!getInnerTag(getCurrent()).equals(")")) {
 			String name;
 			String type;
-			int symbolIndex = this.argumentIndex;
 			this.argumentIndex++;
 			//type		
 			WriteCurrent();
@@ -156,7 +159,7 @@ public class CompilationEngine {
 			name = getInnerTag(getCurrent());
 			this.index++;
 			//add parameter
-			methodSymbolTable.add(new SymbolTableItem(name, "argument", type, symbolIndex));
+			methodSymbolTable.add(new SymbolTableItem(name, "argument", type, this.argumentIndex));
 			//if ,
 			if (getInnerTag(getCurrent()).equals(",")) {
 				WriteCurrent();
@@ -314,6 +317,10 @@ public class CompilationEngine {
 		this.index++;
 		//statements
 		CompileStatements();
+		//not compiled statement
+		vmWriter.WriteLine("//todo");
+		//vmWriter.WriteArithmetic("not");
+		//vmWriter.WriteGoto("L	
 		//}
 		WriteCurrent();
 		this.index++;
@@ -498,7 +505,7 @@ public class CompilationEngine {
 					vmWriter.WriteArithmetic("eq");
 					break;
 				default:
-					vmWriter.WriteLine(cur);
+					vmWriter.WriteLine("Not found: " + cur);
 					break;
 			}
 			cur = getInnerTag(getCurrent());
@@ -527,6 +534,7 @@ public class CompilationEngine {
 			case "keyword":
 				//System.out.println(getInnerTag(getCurrent());
 				WriteCurrent();
+				vmWriter.WriteLine("todo keyword");
 				this.index++;
 				break;
 			//(expr) or uranaryop
