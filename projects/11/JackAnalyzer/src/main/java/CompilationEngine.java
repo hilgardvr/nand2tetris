@@ -378,6 +378,8 @@ public class CompilationEngine {
 		CompileSubroutineCall();
 		//;
 		WriteCurrent();
+		//pop return value into temp 5
+		vmWriter.WritePop("temp", "5");
 		this.index++;
 		this.indent--;
 		WriteLine("</doStatement>");
@@ -455,6 +457,10 @@ public class CompilationEngine {
 		if (!getInnerTag(getCurrent()).equals(";")) {
 			//expression
 			CompileExpression();
+		} else {
+			//push garbage as return value
+			vmWriter.WriteLine("//pushing return value");
+			vmWriter.WritePush("constant", "0");
 		}
 		//;
 		WriteCurrent();
@@ -532,9 +538,26 @@ public class CompilationEngine {
 				break;
 			//true, false, null, this
 			case "keyword":
-				//System.out.println(getInnerTag(getCurrent());
 				WriteCurrent();
-				vmWriter.WriteLine("todo keyword");
+				String keywordValue = getInnerTag(getCurrent());
+				switch (keywordValue) {
+					case "true":
+						vmWriter.WritePush("constant", "-1");
+						break;
+					case "false":
+						vmWriter.WritePush("constant", "0");
+						break;
+					case "null":
+						vmWriter.WritePush("null", "todo");
+						break;
+					case "this":
+						vmWriter.WritePush("argument", "0");
+						break;
+					default:
+						vmWriter.WriteLine("// ------- not found --------> " + keywordValue);
+						break;
+				}
+				//vmWriter.WriteLine("todo keyword");
 				this.index++;
 				break;
 			//(expr) or uranaryop
@@ -562,6 +585,8 @@ public class CompilationEngine {
 					CompileSubroutineCall();
 				//var or var[expr]
 				} else {
+					String varName = getInnerTag(getCurrent());
+					vmWriter.WritePush(getVarSegment(varName), getVarIndex(varName));	
 					WriteCurrent();
 					this.index++;
 					if (getInnerTag(getCurrent()).equals("[")) {
