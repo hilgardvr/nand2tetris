@@ -37,6 +37,7 @@ public class VmWriter {
 	}
 
 	public void WriteIf(String label) {
+		WriteLine("if-goto " + label);
 	}
 
 	public void WriteCall(String name, String nArgs) {

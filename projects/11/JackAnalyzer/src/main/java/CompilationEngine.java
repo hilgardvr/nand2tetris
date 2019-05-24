@@ -21,12 +21,14 @@ public class CompilationEngine {
 	private int argumentIndex;
 	private int localIndex;
 	private int ifIndex;
+	private int whileIndex;
 
 	public void ParseTokens(List<String> tokenizedFile, String filePath) {
 		this.tokens = tokenizedFile;
 		this.index = 0;
 		this.indent = 0;
 		this.ifIndex = 0;
+		this.whileIndex = 0;
 		
 		vmWriter = new VmWriter(filePath);
 		String fileName = filePath.substring(0, filePath.lastIndexOf("."));
@@ -309,6 +311,15 @@ public class CompilationEngine {
 		this.index++;
 		//expression
 		CompileExpression();
+		//negate result of expression
+		vmWriter.WriteArithmetic("not");
+		//generate labels
+		String L1 = "iflabel." + this.methodName + Integer.toString(this.ifIndex);
+		this.ifIndex++;
+		String L2 = "iflabel." + this.methodName + Integer.toString(this.ifIndex);
+		this.ifIndex++;
+		//if true go to else block
+		vmWriter.WriteIf(L1);
 		//)
 		WriteCurrent();
 		this.index++;
@@ -317,13 +328,13 @@ public class CompilationEngine {
 		this.index++;
 		//statements
 		CompileStatements();
-		//not compiled statement
-		vmWriter.WriteLine("//todo");
-		//vmWriter.WriteArithmetic("not");
-		//vmWriter.WriteGoto("L	
+		//goto L2
+		vmWriter.WriteGoto(L2);
 		//}
 		WriteCurrent();
 		this.index++;
+		//emit L1 label for else block
+		vmWriter.WriteLabel(L1);
 		//else statement
 		if (getInnerTag(getCurrent()).equals("else")) {
 			//else
@@ -338,6 +349,8 @@ public class CompilationEngine {
 			WriteCurrent();
 			this.index++;
 		}
+	 	//emit L2 label for after if statement
+		vmWriter.WriteLabel(L2);
 		this.indent--;
 		WriteLine("</ifStatement>");
 	}
@@ -351,8 +364,20 @@ public class CompilationEngine {
 		//(
 		WriteCurrent();
 		this.index++;
+		//generate label for loop exit
+		String L1 = "whilelabel." + this.methodName + Integer.toString(this.whileIndex);
+		this.whileIndex++;
+		//generate label for loop exit
+		String L2 = "whilelabel." + this.methodName + Integer.toString(this.whileIndex);
+		this.whileIndex++;
+		//write L1 for loop entry
+		vmWriter.WriteLabel(L1);
 		//expression
 		CompileExpression();
+		//negate expression
+		vmWriter.WriteArithmetic("not");
+		//if true jump out of loop
+		vmWriter.WriteIf(L2);
 		//)
 		WriteCurrent();
 		this.index++;
@@ -361,8 +386,12 @@ public class CompilationEngine {
 		this.index++;
 		//statements
 		CompileStatements();
+		//reevaluate loop condition
+		vmWriter.WriteGoto(L1);
 		//}
 		WriteCurrent();
+		//emite exit loop label
+		vmWriter.WriteLabel(L2);
 		this.index++;
 		this.indent--;
 		WriteLine("</whileStatement>");
@@ -501,7 +530,7 @@ public class CompilationEngine {
 				case "|":
 					vmWriter.WriteArithmetic("or");
 					break;
-				case "&lt;":
+				case"&lt;":
 					vmWriter.WriteArithmetic("lt");
 					break;
 				case "&gt;":
