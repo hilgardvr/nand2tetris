@@ -182,7 +182,14 @@ public class CompilationEngine {
 		while (getInnerTag(getCurrent()).equals("var")) {
 			CompileVarDec();
 		}
-		vmWriter.WriteFunction(this.className + "." + this.methodName, this.methodSymbolTable.size());
+		//count number of locals
+		int ctr = 0;
+		for (SymbolTableItem item : this.methodSymbolTable) {
+			if (item.getCategory().equals("local")) {
+				ctr++;
+			}
+		}
+		vmWriter.WriteFunction(this.className + "." + this.methodName, ctr);
 		//statements
 		CompileStatements();
 		//}
@@ -571,7 +578,8 @@ public class CompilationEngine {
 				String keywordValue = getInnerTag(getCurrent());
 				switch (keywordValue) {
 					case "true":
-						vmWriter.WritePush("constant", "-1");
+						vmWriter.WritePush("constant", "0");
+						vmWriter.WriteArithmetic("not");
 						break;
 					case "false":
 						vmWriter.WritePush("constant", "0");
@@ -604,6 +612,8 @@ public class CompilationEngine {
 					WriteCurrent();
 					this.index++;
 					CompileTerm();
+					//do not on compiled term
+					vmWriter.WriteArithmetic("not");
 				}
 				break;
 			//var, var[expr], subRoutine
@@ -711,7 +721,11 @@ public class CompilationEngine {
 	private String getVarIndex(String varName) {
 		for (SymbolTableItem t : methodSymbolTable) {
 			if (t.getName().equals(varName)) {
-				return (t.getIndex());
+				if (t.getCategory().equals("argument")) {
+					return (Integer.toString(Integer.parseInt(t.getIndex()) - 1));
+				} else {
+					return (t.getIndex());
+				}
 			}
 		}
 		for (SymbolTableItem t : classSymbolTable) {
