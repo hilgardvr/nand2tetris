@@ -607,6 +607,13 @@ public class CompilationEngine {
 					//)
 					WriteCurrent();
 					this.index++;
+				//negate
+				} else if (getInnerTag(getCurrent()).equals("-")) {
+					vmWriter.WritePush("constant", "0");
+					WriteCurrent();
+					this.index++;
+					CompileTerm();
+					vmWriter.WriteArithmetic("sub");
 				//uranary op
 				} else {
 					WriteCurrent();
