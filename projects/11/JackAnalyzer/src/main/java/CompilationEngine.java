@@ -22,6 +22,7 @@ public class CompilationEngine {
 	private int localIndex;
 	private int ifIndex;
 	private int whileIndex;
+	private String subType;
 
 	public void ParseTokens(List<String> tokenizedFile, String filePath) {
 		this.tokens = tokenizedFile;
@@ -114,6 +115,7 @@ public class CompilationEngine {
 		WriteLine("<subroutineDec>");
 		this.indent++;
 		//const | method | function
+		this.subType = getInnerTag(getCurrent());
 		WriteCurrent();
 		this.index++;
 		//void | type
@@ -145,13 +147,15 @@ public class CompilationEngine {
 	private void CompileParameterList() {
 		WriteLine("<parameterList>");
 		this.indent++;
-		//add implicit this argument
-		methodSymbolTable.add(new SymbolTableItem("this", "argument", className, this.argumentIndex));
+		//add implicit this argument for methods
+		if (this.subType.equals("method")) {
+			methodSymbolTable.add(new SymbolTableItem("this", "argument", className, this.argumentIndex));
+			this.argumentIndex++;
+		}
 		// if any parameters
 		while (!getInnerTag(getCurrent()).equals(")")) {
 			String name;
 			String type;
-			this.argumentIndex++;
 			//type		
 			WriteCurrent();
 			type = getInnerTag(getCurrent());	
@@ -167,6 +171,7 @@ public class CompilationEngine {
 				WriteCurrent();
 				this.index++;
 			}
+			this.argumentIndex++;
 		}
 		this.indent--;
 		WriteLine("</parameterList>");
@@ -190,6 +195,7 @@ public class CompilationEngine {
 			}
 		}
 		vmWriter.WriteFunction(this.className + "." + this.methodName, ctr);
+		//todo handle constructor
 		//statements
 		CompileStatements();
 		//}
@@ -728,11 +734,11 @@ public class CompilationEngine {
 	private String getVarIndex(String varName) {
 		for (SymbolTableItem t : methodSymbolTable) {
 			if (t.getName().equals(varName)) {
-				if (t.getCategory().equals("argument")) {
+				/*if (t.getCategory().equals("argument")) {
 					return (Integer.toString(Integer.parseInt(t.getIndex()) - 1));
-				} else {
+				} else {*/
 					return (t.getIndex());
-				}
+				//}
 			}
 		}
 		for (SymbolTableItem t : classSymbolTable) {
