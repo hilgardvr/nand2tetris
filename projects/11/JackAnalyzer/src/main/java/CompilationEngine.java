@@ -195,7 +195,23 @@ public class CompilationEngine {
 			}
 		}
 		vmWriter.WriteFunction(this.className + "." + this.methodName, ctr);
-		//todo handle constructor
+		if (this.subType.equals("constructor")) {
+			vmWriter.WriteLine("//Creating object of type " + this.className);
+			//handle constructor
+			int classVars = 0;
+			//get number of class variables
+			for (SymbolTableItem item : this.classSymbolTable) {
+				if (!item.getCategory().equals("static")) {	
+					classVars++;
+				}
+			}
+			//push number of class vars
+			vmWriter.WritePush("constant", Integer.toString(classVars));	
+			//alloc memory for the new object
+			vmWriter.WriteCall("Memory.alloc", "1");
+			//pop return address in this
+			vmWriter.WritePop("pointer", "0");
+		}
 		//statements
 		CompileStatements();
 		//}
@@ -594,7 +610,7 @@ public class CompilationEngine {
 						vmWriter.WritePush("null", "todo");
 						break;
 					case "this":
-						vmWriter.WritePush("argument", "0");
+						vmWriter.WritePush("pointer", "0");
 						break;
 					default:
 						vmWriter.WriteLine("// ------- not found --------> " + keywordValue);
@@ -725,7 +741,11 @@ public class CompilationEngine {
 		}
 		for (SymbolTableItem t : classSymbolTable) {
 			if (t.getName().equals(varName)) {
-				return (t.getCategory());
+				if (t.getCategory().equals("static")) {
+					return ("static");
+				} else {
+					return ("this");
+				}
 			}
 		} 
 		return "TODO";
