@@ -452,12 +452,14 @@ public class CompilationEngine {
 		this.index++;
 		//if subroutine()
 		if (getInnerTag(getCurrent()).equals("(")) {
+			subName = this.className + "." + subName;
 			//(
 			WriteCurrent();
 			this.index++;
 			//ExressionList
 			nArgs = CompileExpressionList();		
 		// identifier.subroutine()
+		//todo - if method - add this argument and add class name to call
 		} else {
 			//.
 			subName += getInnerTag(getCurrent());
@@ -748,17 +750,13 @@ public class CompilationEngine {
 				}
 			}
 		} 
-		return "TODO";
+		return null;
 	}
 
 	private String getVarIndex(String varName) {
 		for (SymbolTableItem t : methodSymbolTable) {
 			if (t.getName().equals(varName)) {
-				/*if (t.getCategory().equals("argument")) {
-					return (Integer.toString(Integer.parseInt(t.getIndex()) - 1));
-				} else {*/
-					return (t.getIndex());
-				//}
+				return (t.getIndex());
 			}
 		}
 		for (SymbolTableItem t : classSymbolTable) {
@@ -766,8 +764,22 @@ public class CompilationEngine {
 				return (t.getIndex());
 			}
 		}
-		return "TODO";
+		return null;
 	}
+
+	private String getVarType(Stirng varName) {
+		for (SymbolTableItem t : methodSymbolTable) {
+			if (t.getName().equals(varName)) {
+				return (t.getType());
+			}
+		}
+		for (SymbolTableItem t : classSymbolTable) {
+			if (t.getName().equals(varName)) {
+				return (t.getType());
+			}
+		}
+		return null;
+		
 	
 	private String getXmlTag(String token) {
 		return token.substring(token.indexOf("<") + 1, token.indexOf(">"));
