@@ -211,6 +211,11 @@ public class CompilationEngine {
 			vmWriter.WriteCall("Memory.alloc", "1");
 			//pop return address in this
 			vmWriter.WritePop("pointer", "0");
+		} else if (this.subType.equals("method")) {
+			//push current object onto the stack
+			vmWriter.WritePush("argument", "0");
+			//pop into this
+			vmWriter.WritePop("pointer", "0");
 		}
 		//statements
 		CompileStatements();
@@ -452,15 +457,27 @@ public class CompilationEngine {
 		this.index++;
 		//if subroutine()
 		if (getInnerTag(getCurrent()).equals("(")) {
+			//push this address
+			vmWriter.WritePush("pointer", "0");
+			nArgs++;
+			//get classname
 			subName = this.className + "." + subName;
 			//(
 			WriteCurrent();
 			this.index++;
 			//ExressionList
-			nArgs = CompileExpressionList();		
+			nArgs += CompileExpressionList();		
 		// identifier.subroutine()
-		//todo - if method - add this argument and add class name to call
+		//if method - add this argument and add class name to call
 		} else {
+			//check if identifier is a variable
+			if (getVarSegment(subName) != null) {
+				//push var address
+				vmWriter.WritePush(getVarSegment(subName), getVarIndex(subName));
+				nArgs++;
+				//add identifier class type
+				subName = getVarType(subName);
+			} 
 			//.
 			subName += getInnerTag(getCurrent());
 			WriteCurrent();
@@ -473,7 +490,7 @@ public class CompilationEngine {
 			WriteCurrent();
 			this.index++;
 			//expressionlist
-			nArgs = CompileExpressionList();
+			nArgs += CompileExpressionList();
 		}	
 		//method name
 		vmWriter.WriteCall(subName, Integer.toString(nArgs));	
@@ -767,7 +784,7 @@ public class CompilationEngine {
 		return null;
 	}
 
-	private String getVarType(Stirng varName) {
+	private String getVarType(String varName) {
 		for (SymbolTableItem t : methodSymbolTable) {
 			if (t.getName().equals(varName)) {
 				return (t.getType());
@@ -779,6 +796,7 @@ public class CompilationEngine {
 			}
 		}
 		return null;
+	}
 		
 	
 	private String getXmlTag(String token) {
