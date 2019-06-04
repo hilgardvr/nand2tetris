@@ -448,7 +448,7 @@ public class CompilationEngine {
 		WriteLine("</doStatement>");
 	}
 
-	//todo - add local classname to to local sub call
+	//add local classname to to local sub call
 	private void CompileSubroutineCall() {
 		int nArgs = 0;
 		//identifier
@@ -610,17 +610,14 @@ public class CompilationEngine {
 			//sting constants
 			case "stringConstant":
 				String str = getInnerTag(getCurrent());
-				System.out.println("str --------> " + str);
 				int len = str.length();
 				vmWriter.WritePush("constant", Integer.toString(len));
 				vmWriter.WriteCall("String.new", "1");
-				vmWriter.WritePop("pointer", "0");
 				int ctr = 0;
 				while (ctr < len) {
-					vmWriter.WritePush("constant", Integer.toString(ctr));
 					int charVal = str.charAt(ctr);
 					vmWriter.WritePush("constant", Integer.toString(charVal));
-					vmWriter.WriteCall("String.setCharAt", "2");
+					vmWriter.WriteCall("String.appendChar", "2");
 					ctr++;
 				}
 				this.index++;
@@ -696,7 +693,11 @@ public class CompilationEngine {
 						//[
 						WriteCurrent();
 						this.index++;
+						vmWriter.WriteLine("//array -------> " + getInnerTag(getCurrent()));
 						CompileExpression();
+						//add array base + index
+						vmWriter.WriteLine("//array -------> " + getInnerTag(getCurrent()));
+						vmWriter.WriteArithmetic("add");
 						//]
 						WriteCurrent();
 						this.index++;
