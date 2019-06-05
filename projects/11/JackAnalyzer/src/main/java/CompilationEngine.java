@@ -309,27 +309,50 @@ public class CompilationEngine {
 		this.index++;
 		//if array variable
 		if (getInnerTag(getCurrent()).equals("[")) {
+			//push array variable address
+			vmWriter.WritePush(getVarSegment(varName), getVarIndex(varName));
 			//[
 			WriteCurrent();
 			this.index++;
 			//expression
 			CompileExpression();
+			//array address + expression
+			vmWriter.WriteArithmetic("add");
 			//]
 			WriteCurrent();
 			this.index++;
+			//=
+			WriteCurrent();
+			this.index++;
+			//expression
+			CompileExpression();
+			//pop result of expr2
+			vmWriter.WritePop("temp", "0");
+			//pop array pointer
+			vmWriter.WritePop("pointer", "1");
+			//push result op expr2
+			vmWriter.WritePush("temp", "0");
+			//pop into assigned array address
+			vmWriter.WritePop("that", "0");
+			//;
+			WriteCurrent();
+			this.index++;
+			this.indent--;
+			WriteLine("</letStatement>");
+		} else {
+			//=
+			WriteCurrent();
+			this.index++;
+			//expression
+			CompileExpression();
+			//pop result into varname
+			vmWriter.WritePop(getVarSegment(varName), getVarIndex(varName));
+			//;
+			WriteCurrent();
+			this.index++;
+			this.indent--;
+			WriteLine("</letStatement>");
 		}
-		//=
-		WriteCurrent();
-		this.index++;
-		//expression
-		CompileExpression();
-		//pop result into varname
-		vmWriter.WritePop(getVarSegment(varName), getVarIndex(varName));
-		//;
-		WriteCurrent();
-		this.index++;
-		this.indent--;
-		WriteLine("</letStatement>");
 	}
 
 	
@@ -648,7 +671,6 @@ public class CompilationEngine {
 						vmWriter.WriteLine("// ------- not found --------> " + keywordValue);
 						break;
 				}
-				//vmWriter.WriteLine("todo keyword");
 				this.index++;
 				break;
 			//(expr) or uranaryop
@@ -693,11 +715,13 @@ public class CompilationEngine {
 						//[
 						WriteCurrent();
 						this.index++;
-						vmWriter.WriteLine("//array -------> " + getInnerTag(getCurrent()));
 						CompileExpression();
-						//add array base + index
-						vmWriter.WriteLine("//array -------> " + getInnerTag(getCurrent()));
+						//array base + expr
 						vmWriter.WriteArithmetic("add");
+						//pop into pointer 1
+						vmWriter.WritePop("pointer", "1");
+						//push value of pointer 1
+						vmWriter.WritePush("that", "0");
 						//]
 						WriteCurrent();
 						this.index++;
