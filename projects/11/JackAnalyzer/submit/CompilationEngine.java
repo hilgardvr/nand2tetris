@@ -662,7 +662,7 @@ public class CompilationEngine {
 						vmWriter.WritePush("constant", "0");
 						break;
 					case "null":
-						//vmWriter.WritePush("null", "todo");
+						vmWriter.WritePush("null", "todo");
 						break;
 					case "this":
 						vmWriter.WritePush("pointer", "0");

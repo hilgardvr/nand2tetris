@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.List;
 import java.util.ArrayList;
 
-public class JackAnalyzer {
+public class JackCompiler {
 
 	public List<String> ReadFile(File fileToRead) {
 		System.out.println("Analyzer and tokenizer starting with " + fileToRead);
@@ -36,7 +36,7 @@ public class JackAnalyzer {
 		}
 		
 		File fileOrDir = new File(args[0]);
-		JackAnalyzer jackizer = new JackAnalyzer();
+		JackCompiler jackizer = new JackCompiler();
 		CompilationEngine engine = new CompilationEngine();
 		List<String> tokens = new ArrayList<String>();
 	
