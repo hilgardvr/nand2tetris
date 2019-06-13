@@ -16,7 +16,6 @@ class Math {
 		var int ctr;
 		var int total;
 
-		//do Output.printString("-------------------------->");
 		let twoToThe = Array.new(16);
 		let ctr = 0;
 		let total = 1;
@@ -25,6 +24,7 @@ class Math {
 			let total = total + total;
 			let ctr = ctr + 1;
 		}
+		let twoToThe[15] = 32767;
 		return;
     }
 
@@ -43,7 +43,6 @@ class Math {
 
 		//do Math.init();
 		//zero base bit
-		let bit = bit - 1;
 		let ctr = 15;
 		while (ctr > -1) {
 			if (bit = ctr) {
@@ -55,7 +54,12 @@ class Math {
 			}
 			if (twoToThe[ctr] < val) {
 				let val = val - twoToThe[ctr];
+			} else {
+				if (twoToThe[ctr] = val) {
+					let val = val - twoToThe[ctr];
+				}
 			}
+				
 			let ctr = ctr - 1;
 		}	
 		return false;
@@ -83,9 +87,15 @@ class Math {
 		let ctr = 0;
 		let shiftedX = x;
 		while (ctr < 16) {
+			do Output.printString("Int: " );
+			do Output.printInt(y);
+			do Output.printString(" val: ");
+			do Output.printInt(ctr);
 			if (Math.bit(y, ctr)) {
 				let sum = sum + shiftedX;
+				do Output.printString(" true");
 			}
+			do Output.println();
 			let shiftedX = shiftedX + shiftedX;	
 			let ctr = ctr + 1;
 		}
@@ -106,7 +116,7 @@ class Math {
 		if (y > x) {
 			return 0;
 		}
-		let q = Math.divide(x, 2 * y);
+		let q = Math.divide(x, (2 * y));
 		if ((x - (2 * q * y)) < y) {
 			return (2 * q);
 		} else {
