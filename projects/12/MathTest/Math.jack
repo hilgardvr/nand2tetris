@@ -87,15 +87,9 @@ class Math {
 		let ctr = 0;
 		let shiftedX = x;
 		while (ctr < 16) {
-			do Output.printString("Int: " );
-			do Output.printInt(y);
-			do Output.printString(" val: ");
-			do Output.printInt(ctr);
 			if (Math.bit(y, ctr)) {
 				let sum = sum + shiftedX;
-				do Output.printString(" true");
 			}
-			do Output.println();
 			let shiftedX = shiftedX + shiftedX;	
 			let ctr = ctr + 1;
 		}
@@ -105,15 +99,28 @@ class Math {
 		return sum;
     }
 
+	function int divide(int x, int y) {
+		var int result;
+
+		let result = Math.divideHelper(Math.abs(x), Math.abs(y));
+		if (x < 0) {
+			let result = result * -1;
+		}
+		if (y < 0) {
+			let result = result * -1;
+		}
+		return result;
+	}
+
     /** Returns the integer part of x/y.
      *  When a Jack compiler detects the multiplication operator '/' in the 
      *  program's code, it handles it by invoking this method. In other words,
      *  the Jack expressions x/y and divide(x,y) return the same value.
      */
-    function int divide(int x, int y) {
+    function int divideHelper(int x, int y) {
 		var int q;
 
-		if (y > x) {
+		if (y > x | y < 0) {
 			return 0;
 		}
 		let q = Math.divide(x, (2 * y));
@@ -121,28 +128,39 @@ class Math {
 			return (2 * q);
 		} else {
 			return ((2 * q) + 1);
-		}			
+		}	
     }
 
 	function int powerHelper(int base, int power) {
-		if (power = 0) {
-			return 1;
+		var int total;
+		
+		do Output.printString("Input base: ");
+		do Output.printInt(base);
+		do Output.println();
+		do Output.printString("Input power: ");
+		do Output.printInt(power);
+		do Output.println();
+		let total = base;
+		while (power > 0) {
+			let total = total * base;
+			let power = power - 1;
 		}
-		if (power > 1) {
-			return (base + Math.powerHelper(base, (power - 1)));
-		} else {
-			return base;
-		}
+		do Output.printString("Output: ");
+		do Output.printInt(total);
+		do Output.println();
+		return total;
 	}
 
     /** Returns the integer part of the square root of x. */
     function int sqrt(int x) {
 		var int y;
 		var int j;
+		var int max;
 
+		let j = 0;
 		let y = 0;
-		let j = (x / 2) - 1;
-		while (j > -1) {
+		let max = (x / 2) - 1;
+		while (j < max) {
 			if (x < Math.powerHelper( (y + Math.powerHelper(2, j)), 2)) {
 				let y = y + Math.powerHelper(2, j);
 			}
