@@ -19,7 +19,7 @@ class Math {
 		let twoToThe = Array.new(16);
 		let ctr = 0;
 		let total = 1;
-		while (ctr < 15) {
+		while (ctr < 16) {
 			let twoToThe[ctr] = total;
 			let total = total + total;
 			let ctr = ctr + 1;
@@ -131,40 +131,22 @@ class Math {
 		}	
     }
 
-	function int powerHelper(int base, int power) {
-		var int total;
-		
-		do Output.printString("Input base: ");
-		do Output.printInt(base);
-		do Output.println();
-		do Output.printString("Input power: ");
-		do Output.printInt(power);
-		do Output.println();
-		let total = base;
-		while (power > 0) {
-			let total = total * base;
-			let power = power - 1;
-		}
-		do Output.printString("Output: ");
-		do Output.printInt(total);
-		do Output.println();
-		return total;
-	}
-
     /** Returns the integer part of the square root of x. */
     function int sqrt(int x) {
 		var int y;
 		var int j;
 		var int max;
+		var int temp;
 
-		let j = 0;
+		let j = 7;
 		let y = 0;
-		let max = (x / 2) - 1;
-		while (j < max) {
-			if (x < Math.powerHelper( (y + Math.powerHelper(2, j)), 2)) {
-				let y = y + Math.powerHelper(2, j);
-			}
-		}		
+		while (j > -1) {
+			let temp = (y + twoToThe[j]) * (y + twoToThe[j]);
+			if (((x > temp) | (x = temp)) & (temp > 0)) {
+				let y = y + twoToThe[j];
+			}	
+			let j = j - 1;
+		}	
 		return y;
     }
 
