@@ -43,37 +43,22 @@ class Math {
 
 		let total = val;
 
-		// Output.printString("val: ");
-		// Output.printInt(val);
-		// Output.printString(" bit: ");
-		// Output.printInt(bit);
-		// Output.printString("  --  ");
 		if (bit = 15) {
 			if (total < 0) {
-					// Output.printString("true");
-					// Output.println();
 				return true;
 			} else {
-					// Output.printString("false ");
-					// Output.println();
 				return false;
 			}
 		}
 		if (total < 0) {
 			let total = total - twoToThe[15];
-			// Output.printString("total after 2[15]: ");
-			// Output.printInt(total);
 		}
 		let ctr = 14;
 		while (ctr > -1) {
 			if (bit = ctr) {
 				if (total < twoToThe[ctr]) {
-					// Output.printString("false ");
-					// Output.println();
 					return false;
 				} else {
-					// Output.printString("true");
-					// Output.println();
 					return true;
 				}
 			}
@@ -84,8 +69,6 @@ class Math {
 				let ctr = ctr - 1;
 			}
 		}	
-		do Output.printString("not found - false");
-		do Output.println();
 		return false;
 	}
 

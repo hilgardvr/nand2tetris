@@ -1,0 +1,299 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Screen.jack
+
+/**
+ * A library of functions for displaying graphics on the screen.
+ * The Hack physical screen consists of 512 rows (indexed 0..511, top to bottom)
+ * of 256 pixels each (indexed 0..255, left to right). The top left pixel on 
+ * the screen is indexed (0,0).
+ */
+class Screen {
+	static Array twoToThe;
+	static bool colorOn;
+
+    /** Initializes the Screen. */
+    function void init() {
+		var int ctr;
+		var int total;
+
+		let twoToThe = Array.new(16);
+		let colorOn = true;
+		let ctr = 0;
+		let total = 1;
+		while (ctr < 16) {
+			let twoToThe[ctr] = total;
+			let total = total + total;
+			let ctr = ctr + 1;
+		}
+		return;
+    }
+
+    /** Erases the entire screen. */
+    function void clearScreen() {
+		var int ctr;
+		let colorOn = false;
+		let ctr = 0;
+		while (ctr < 16) {
+			do Screen.drawHorizontal(0, 511, ctr);
+			let ctr = ctr + 1;
+		}
+		return;
+    }
+
+    /** Sets the current color, to be used for all subsequent drawXXX commands.
+     *  Black is represented by true, white by false. */
+    function void setColor(boolean b) {
+		let colorOn = b;
+		return;
+    }
+
+    /** Draws the (x,y) pixel, using the current color. */
+    function void drawPixel(int x, int y) {
+		var int address;
+		var int modulo;
+		var int divResult;
+		var int value;
+		var bool isColor;
+
+		let divResult = x / 16;
+		let modulo = x - (divResult * 16);
+		let address = (32 * y) + divResult;
+		let value = Memory.peek(16384 + address);
+		let isColor = Screen.bit(value, modulo);	
+		if (~(isColor = colorOn)) {
+			if (colorOn) {
+				let value = value + twoToThe[modulo];
+			} else {
+				let value = value - twoToThe[modulo];
+			}
+		}
+		do Memory.poke((16384 + address), value); 
+		return;
+    }
+
+
+    /** Draws a line from pixel (x1,y1) to pixel (x2,y2), using the current color. */
+    function void drawLine(int x1, int y1, int x2, int y2) {
+		if (x2 = x1) {
+			do Screen.drawVertical(x1, y1, y2);
+			return;
+		}
+		if (y2 = y1) {
+			do Screen.drawHorizontal(x1, x2, y2);
+			return;
+		}
+		if (y2 > y1) {
+			if (x2 > x1) {
+				do Screen.drawSouthEast(x1, y1, x2, y2);
+			} else {
+				do Screen.drawSouthWest(x1, y1, x2, y2);
+			}
+		} else {
+			if (x2 > x1) {
+				do Screen.drawNorthEast(x1, y1, x2, y2);
+			} else {
+				do Screen.drawNorthWest(x1, y1, x2, y2);
+			}
+		}	
+		return;	
+    }
+
+    /** Draws a filled rectangle whose top left corner is (x1, y1)
+     * and bottom right corner is (x2,y2), using the current color. */
+    function void drawRectangle(int x1, int y1, int x2, int y2) {
+		return;
+    }
+
+    /** Draws a filled circle of radius r<=181 around (x,y), using the current color. */
+    function void drawCircle(int x, int y, int r) {
+		var int dy;
+		var int offset;
+
+		let dy = r;
+		while (dy > (-r)) {
+			let offset = Math.sqrt( (r * r) - (dy * dy) );
+			do Screen.drawLine( (x - offset), (y + dy), (x + offset), (y + dy) );
+			let dy = dy - 1;
+		} 
+			
+		return;
+    }
+		
+	//"private" helper functions
+	function boolean bit(int val, int bit) {
+		var int ctr;
+		var int total;
+
+		let total = val;
+
+		if (bit = 15) {
+			if (total < 0) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		if (total < 0) {
+			let total = total - twoToThe[15];
+		}
+		let ctr = 14;
+		while (ctr > -1) {
+			if (bit = ctr) {
+				if (total < twoToThe[ctr]) {
+					return false;
+				} else {
+					return true;
+				}
+			}
+			if (total < twoToThe[ctr]) {
+				let ctr = ctr - 1;
+			} else {
+				let total = total - twoToThe[ctr];
+				let ctr = ctr - 1;
+			}
+		}	
+		return false;
+	}
+
+	function void drawSouthEast(int x1, int y1, int x2, int y2) {
+		var int dx;
+		var int dy;
+		var int a;
+		var int b;
+		var int diff;
+		
+		let dx = x2 - x1;
+		let dy = y2 - y1;
+		let a = 0;
+		let b = 0;
+		let diff = 0;
+		while ((dx > a) | (dy > b)) {
+			do Screen.drawPixel( (x1 + a), (y1 + b) );
+			if (diff < 0) {
+				let a = a + 1;
+				let diff = diff + dy;
+			} else {
+				let b = b + 1;
+				let diff = diff - dx;
+			}
+		}
+		return;
+	}
+
+	function void drawNorthEast(int x1, int y1, int x2, int y2) {
+       	//do Screen.drawLine(280,90,345,35);        // roof
+		var int dx;
+		var int dy;
+		var int a;
+		var int b;
+		var int diff;
+		
+		let dx = Math.abs(x2 - x1);
+		let dy = Math.abs(y2 - y1);
+		let a = 0;
+		let b = 0;
+		let diff = 0;
+		while ((dx > a) | (dy > b)) {
+			do Screen.drawPixel( (x1 + a), (y1 - b) );
+			if (diff < 0) {
+				let a = a + 1;
+				let diff = diff + dy;
+			} else {
+				let b = b + 1;
+				let diff = diff - dx;
+			}
+		}
+		return;
+	}
+
+	function void drawSouthWest(int x1, int y1, int x2, int y2) {
+		var int dx;
+		var int dy;
+		var int a;
+		var int b;
+		var int diff;
+		
+		let dx = Math.abs(x2 - x1);
+		let dy = Math.abs(y2 - y1);
+		let a = 0;
+		let b = 0;
+		let diff = 0;
+		while ((dx > a) | (dy > b)) {
+			do Screen.drawPixel( (x1 - a), (y1 + b) );
+			if (diff < 0) {
+				let a = a + 1;
+				let diff = diff + dy;
+			} else {
+				let b = b + 1;
+				let diff = diff - dx;
+			}
+		}
+		return;
+	}
+
+	function void drawNorthWest(int x1, int y1, int x2, int y2) {
+		var int dx;
+		var int dy;
+		var int a;
+		var int b;
+		var int diff;
+		
+		let dx = Math.abs(x2 - x1);
+		let dy = Math.abs(y2 - y1);
+		let a = 0;
+		let b = 0;
+		let diff = 0;
+		while ((dx > a) | (dy > b)) {
+			do Screen.drawPixel( (x1 - a), (y1 - b) );
+			if (diff < 0) {
+				let a = a + 1;
+				let diff = diff + dy;
+			} else {
+				let b = b + 1;
+				let diff = diff - dx;
+			}
+		}
+		return;
+	}
+
+	function void drawHorizontal(int x1, int x2, int y) {
+		var int moverX;
+		var int endX;
+
+		if (x1 < x2) {
+			let moverX = x1;
+			let endX = x2;
+		} else {
+			let moverX = x2;
+			let endX = x1;
+		}
+
+		while (moverX < endX) {
+			do Screen.drawPixel(moverX, y);
+			let moverX = moverX + 1;
+		}
+		return;
+	}
+
+	function void drawVertical(int x, int y1, int y2) {
+		var int moverY;
+		var int endY;
+
+		if (y1 < y2) {
+			let moverY = y1;
+			let endY = y2;
+		} else {
+			let moverY = y2;
+			let endY = y1;
+		}
+
+		while (moverY < endY) {
+			do Screen.drawPixel(x, moverY);
+			let moverY = moverY + 1;
+		}
+		return;
+	}
+
+}
