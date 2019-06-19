@@ -103,6 +103,13 @@ class Screen {
     /** Draws a filled rectangle whose top left corner is (x1, y1)
      * and bottom right corner is (x2,y2), using the current color. */
     function void drawRectangle(int x1, int y1, int x2, int y2) {
+		var int y2Add;
+
+		let y2Add = y2 + 1;
+		while (y1 < y2Add) {
+			do Screen.drawHorizontal(x1, x2, y1);
+			let y1 = y1 + 1;
+		}
 		return;
     }
 
@@ -110,9 +117,11 @@ class Screen {
     function void drawCircle(int x, int y, int r) {
 		var int dy;
 		var int offset;
+		var int r1;
 
 		let dy = r;
-		while (dy > (-r)) {
+		let r1 = (-r) - 1;
+		while (dy > r1) {
 			let offset = Math.sqrt( (r * r) - (dy * dy) );
 			do Screen.drawLine( (x - offset), (y + dy), (x + offset), (y + dy) );
 			let dy = dy - 1;
