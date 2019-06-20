@@ -191,6 +191,29 @@ class Output {
     /** Displays the given character at the cursor location,
      *  and advances the cursor one column forward. */
     function void printChar(char c) {
+		var int charInt;
+		var int xctr;
+		var int yctr;
+
+		let charInt = Output.getMap(c);
+		let xctr = cursorX;
+		let yctr = cursorY;
+		while (yctr < 12) {
+			while (xctr < 8) {
+				if (Math.bit(charInt[yctr],  xctr)) {
+					do Screen.setColor(true);
+				} else {
+					do Screen.setColor(false);
+				}
+				do Screen.drawPixel(xctr, yctr);
+				let xctr = xctr + 1;
+			}
+			let yctr = yctr + 1;
+		}
+		let cursorX = cursorX + 8;
+		if (cursorX = 512) {
+			do Output.moveCursor(0, (yctr + 1));
+		}	
 		return;
     }
 
