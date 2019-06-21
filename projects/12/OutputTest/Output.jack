@@ -184,7 +184,7 @@ class Output {
     function void moveCursor(int i, int j) {
 		let cursorX = i;
 		let cursorY = j;
-		do Screen.drawRectangle(cursorX, cursorY, (cursorX + 8), (cursorY + 11));
+		//do Screen.drawRectangle(cursorX, cursorY, (cursorX + 8), (cursorY + 11));
 		return;
     }
 
@@ -198,8 +198,10 @@ class Output {
 		let charInt = Output.getMap(c);
 		let xctr = cursorX;
 		let yctr = cursorY;
-		while (yctr < 12) {
-			while (xctr < 8) {
+		let cursorX = cursorX + 8;
+		let cursorY = cursorY + 12;
+		while (yctr < cursorY) {
+			while (xctr < cursorX) {
 				if (Math.bit(charInt[yctr],  xctr)) {
 					do Screen.setColor(true);
 				} else {
@@ -208,12 +210,14 @@ class Output {
 				do Screen.drawPixel(xctr, yctr);
 				let xctr = xctr + 1;
 			}
+			let xctr = cursorX - 8;
 			let yctr = yctr + 1;
 		}
-		let cursorX = cursorX + 8;
-		if (cursorX = 512) {
+		if (cursorX = 511) {
 			do Output.moveCursor(0, (yctr + 1));
-		}	
+		} else {
+			do Output.moveCursor((xctr + 1), yctr);
+		}
 		return;
     }
 
