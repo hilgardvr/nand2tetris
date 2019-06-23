@@ -75,8 +75,14 @@ class String {
 		var int ctr;
 		var int total;
 		var int c;
-
-		let ctr = 0;
+		var int neg;
+		if (charAt(0) = 45) {
+			let ctr = 1;
+			let neg = -1;
+		} else {
+			let ctr = 0;
+			let neg = 1;
+		}
 		let total = 0;
 		let c = charAt(ctr) - 48;
 		while (ctr < length & (c > (-1)) & (c < 10)) {
@@ -85,13 +91,18 @@ class String {
 			let ctr = ctr + 1;
 			let c = charAt(ctr) - 48;
 		}
-		return total;
+		return total * neg;
     }
 
     /** Sets this string to hold a representation of the given value. */
     method void setInt(int val) {
 		var int lastDig;
 
+		if (val < 0) {
+			do setCharAt(0, 45);
+			let length = 1;
+			let val = (-val);
+		}
 		let lastDig = val - ((val / 10) * 10);
 		if (val < 10) {
 			do appendChar(lastDig + 48);
