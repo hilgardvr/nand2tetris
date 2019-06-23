@@ -12,53 +12,108 @@
  */
 class String {
 
+	field Array str;
+	field int length;
+	field int max;
+
     /** constructs a new empty string with a maximum length of maxLength
      *  and initial length of 0. */
     constructor String new(int maxLength) {
+		if (maxLength < 1) {
+			let max = 1;
+		} else {
+			let max = maxLength;
+		}
+		let str = Array.new(max);
+		let length = 0;
+		return this;
     }
 
     /** Disposes this string. */
     method void dispose() {
+		let length = 0;
+		do str.dispose();
+		do Memory.deAlloc(this);
+		return;
     }
 
     /** Returns the current length of this string. */
     method int length() {
+		return length;
     }
 
     /** Returns the character at the j-th location of this string. */
     method char charAt(int j) {
+		return str[j];
     }
 
     /** Sets the character at the j-th location of this string to c. */
     method void setCharAt(int j, char c) {
+		let str[j] = c;
+		return;
     }
 
     /** Appends c to this string's end and returns this string. */
     method String appendChar(char c) {
+		if (length < max) {
+			let str[length] = c;
+			let length = length + 1;
+		}
+		return this;
     }
 
     /** Erases the last character from this string. */
     method void eraseLastChar() {
+		let length = length - 1;
+		let str[length] = 0;
+		return;
     }
 
     /** Returns the integer value of this string, 
      *  until a non-digit character is detected. */
     method int intValue() {
+		var int ctr;
+		var int total;
+		var int c;
+
+		let ctr = 0;
+		let total = 0;
+		let c = charAt(ctr) - 48;
+		while (ctr < length & (c > (-1)) & (c < 10)) {
+			let total = total * 10;
+			let total = total + c;
+			let ctr = ctr + 1;
+			let c = charAt(ctr) - 48;
+		}
+		return total;
     }
 
     /** Sets this string to hold a representation of the given value. */
     method void setInt(int val) {
+		var int lastDig;
+
+		let lastDig = val - ((val / 10) * 10);
+		if (val < 10) {
+			do appendChar(lastDig + 48);
+		} else {
+			do setInt(val / 10);
+			do appendChar(lastDig + 48);
+		}
+		return;
     }
 
     /** Returns the new line character. */
     function char newLine() {
+		return 128;
     }
 
     /** Returns the backspace character. */
     function char backSpace() {
+		return 129;
     }
 
     /** Returns the double quote (") character. */
     function char doubleQuote() {
+		return 34;
     }
 }
