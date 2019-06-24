@@ -272,10 +272,10 @@ class Screen {
 		var int endX;
 
 		if (x1 < x2) {
-			let moverX = x1;
+			let moverX = x1 - 1;
 			let endX = x2;
 		} else {
-			let moverX = x2;
+			let moverX = x2 - 1;
 			let endX = x1;
 		}
 
